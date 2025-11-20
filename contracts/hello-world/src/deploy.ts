@@ -1,4 +1,3 @@
-import 'dotenv/config'
 import { AlgorandClient } from '@algorandfoundation/algokit-utils'
 import { HelloWorldFactory } from '../artifacts/HelloWorld.client'
 
