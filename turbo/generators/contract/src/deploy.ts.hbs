@@ -1,0 +1,44 @@
+import 'dotenv/config'
+import { AlgorandClient } from '@algorandfoundation/algokit-utils'
+import { {{pascalCase contractName}}Factory } from '../artifacts/{{pascalCase contractName}}.client'
+
+export async function deploy() {
+  const algorand = AlgorandClient.fromEnvironment()
+  const deployer = await algorand.account.fromEnvironment('DEPLOYER')
+
+  const typedFactory = algorand.client.getTypedAppFactory({{pascalCase contractName}}Factory, {
+    defaultSender: deployer.addr,
+  })
+
+  console.log('\n', `🚀 Deploying ${typedFactory.appName} Application...`, '\n')
+
+  const { appClient, result } = await typedFactory.deploy({
+    appName: typedFactory.appName,
+    onUpdate: 'append',
+    onSchemaBreak: 'append',
+    suppressLog: true,
+  })
+
+  if (['create', 'replace'].includes(result.operationPerformed)) {
+    await algorand.send.payment({
+      amount: (1).algo(),
+      sender: deployer.addr,
+      receiver: appClient.appAddress,
+    })
+  }
+
+  // Get deployment details and display in a table
+  const { appId, appAddress, appName } = appClient
+
+  console.table({
+    name: appName,
+    id: appId.toString(),
+    address: appAddress.toString(),
+    deployer: deployer.addr.toString(),
+  })
+}
+
+deploy().catch((error) => {
+  console.error(error)
+  process.exit(1)
+})

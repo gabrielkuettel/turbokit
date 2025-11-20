@@ -1,0 +1,12 @@
+{
+  "name": "@turbokit/prettier-config",
+  "version": "0.0.0",
+  "private": true,
+  "main": "index.js",
+  "files": [
+    "index.js"
+  ],
+  "devDependencies": {
+    "prettier": "^3.6.2"
+  }
+}

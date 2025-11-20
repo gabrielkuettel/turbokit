@@ -1,0 +1,4 @@
+[project]
+name = "hello-world"
+type = "contract"
+

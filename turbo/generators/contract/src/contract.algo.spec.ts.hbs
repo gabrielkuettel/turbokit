@@ -1,0 +1,14 @@
+import { TestExecutionContext } from '@algorandfoundation/algorand-typescript-testing'
+import { describe, expect, it } from 'vitest'
+import { {{pascalCase contractName}} } from './{{kebabCase contractName}}.algo'
+
+describe('{{pascalCase contractName}} contract', () => {
+  const ctx = new TestExecutionContext()
+  it('Logs the returned value when sayHello is called', () => {
+    const contract = ctx.contract.create({{pascalCase contractName}})
+
+    const result = contract.hello('Sally')
+
+    expect(result).toBe('Hello, Sally')
+  })
+})
