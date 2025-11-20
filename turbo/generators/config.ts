@@ -1,11 +1,14 @@
 import type { PlopTypes } from "@turbo/gen";
 import { execSync } from "node:child_process";
+import { existsSync, readdirSync, statSync } from "node:fs";
+import { join } from "node:path";
 
 export default function (plop: PlopTypes.NodePlopAPI) {
   plop.setActionType("format", (answers) => {
-    const contractName = (answers as { contractName?: string }).contractName || "";
-    const kebabName = plop.getHelper('kebabCase')(contractName);
-    
+    const contractName =
+      (answers as { contractName?: string }).contractName || "";
+    const kebabName = plop.getHelper("kebabCase")(contractName);
+
     try {
       execSync(`npx prettier --write "contracts/${kebabName}/**/*"`, {
         stdio: "ignore",
@@ -34,6 +37,7 @@ export default function (plop: PlopTypes.NodePlopAPI) {
         type: "input",
         name: "contractName",
         message: "Contract name (e.g., hello-world):",
+        default: "hello-world",
       },
       {
         type: "input",
@@ -106,5 +110,143 @@ export default function (plop: PlopTypes.NodePlopAPI) {
       { type: "format" },
       { type: "install" },
     ],
+  });
+
+  plop.setGenerator("contract-env-file", {
+    description: "Generate environment files for a contract",
+    prompts: [
+      {
+        type: "list",
+        name: "target",
+        message: "Generate env files for:",
+        choices: [
+          { name: "A specific contract", value: "single" },
+          { name: "All existing contracts", value: "all" },
+        ],
+      },
+      {
+        type: "input",
+        name: "contractName",
+        message: "Contract name (e.g., hello-world):",
+        when: (answers: { target?: string }) => {
+          return answers.target === "single";
+        },
+        validate: (value: string) => {
+          if (!value) {
+            return "Contract name is required";
+          }
+          const kebabName = plop.getHelper("kebabCase")(value);
+          const contractPath = join(process.cwd(), "contracts", kebabName);
+          if (!existsSync(contractPath)) {
+            return `Contract "${kebabName}" does not exist in contracts/ directory`;
+          }
+          return true;
+        },
+      },
+      {
+        type: "checkbox",
+        name: "networks",
+        message: "Which network environment files would you like to generate?",
+        choices: [
+          { name: "localnet", checked: true },
+          { name: "testnet", checked: false },
+          { name: "mainnet", checked: false },
+          { name: "custom", checked: false },
+        ],
+        validate: (value: string[]) => {
+          if (!value || value.length === 0) {
+            return "Please select at least one network";
+          }
+          return true;
+        },
+      },
+      {
+        type: "input",
+        name: "customNetworkName",
+        message: "Custom network name:",
+        when: (answers: { networks?: string[] }) => {
+          return answers.networks?.includes("custom") ?? false;
+        },
+        validate: (value: string) => {
+          if (!value || value.trim() === "") {
+            return "Custom network name is required";
+          }
+          return true;
+        },
+      },
+    ],
+    actions: (answers) => {
+      const actions: PlopTypes.ActionType[] = [];
+      const networks = (answers?.networks as string[]) || [];
+      const target = answers?.target as string;
+      const customNetworkName = answers?.customNetworkName as
+        | string
+        | undefined;
+
+      // Helper function to generate actions for a single contract
+      const generateActionsForContract = (contractName: string) => {
+        const kebabName = plop.getHelper("kebabCase")(contractName);
+
+        // Generate localnet env file
+        if (networks.includes("localnet")) {
+          actions.push({
+            type: "add",
+            path: `contracts/${kebabName}/.env.localnet`,
+            templateFile: "contract-env-file/.env.localnet.hbs",
+          });
+        }
+
+        // Generate testnet env file
+        if (networks.includes("testnet")) {
+          actions.push({
+            type: "add",
+            path: `contracts/${kebabName}/.env.testnet`,
+            templateFile: "contract-env-file/.env.testnet.hbs",
+          });
+        }
+
+        // Generate mainnet env file
+        if (networks.includes("mainnet")) {
+          actions.push({
+            type: "add",
+            path: `contracts/${kebabName}/.env.mainnet`,
+            templateFile: "contract-env-file/.env.mainnet.hbs",
+          });
+        }
+
+        // Generate custom network env file
+        if (networks.includes("custom") && customNetworkName) {
+          actions.push({
+            type: "add",
+            path: `contracts/${kebabName}/.env.${customNetworkName}`,
+            templateFile: "contract-env-file/.env.custom.hbs",
+            data: {
+              customNetworkName,
+            },
+          });
+        }
+      };
+
+      if (target === "single") {
+        // Generate for a specific contract
+        const contractName = answers?.contractName as string;
+        generateActionsForContract(contractName);
+      } else if (target === "all") {
+        // Generate for all existing contracts
+        const contractsPath = join(process.cwd(), "contracts");
+        if (existsSync(contractsPath)) {
+          const contractDirs = readdirSync(contractsPath).filter((dir) => {
+            const dirPath = join(contractsPath, dir);
+            return statSync(dirPath).isDirectory();
+          });
+
+          contractDirs.forEach((contractDir) => {
+            generateActionsForContract(contractDir);
+          });
+        }
+      }
+
+      return actions;
+    },
   });
 }
