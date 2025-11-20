@@ -1,7 +1,56 @@
-#
-
-HelloWorld
+# HelloWorld
 
 Smart Contract using Algorand Typescript
 
-Commands: - build: compile TEAL and generate client - test: run unit tests
+## Overview
+
+This is a smart contract built with Algorand TypeScript using Puya. The contract is compiled to TEAL and generates client code for easy interaction.
+
+## Requirements
+
+- Node.js >= 22.14.0
+- npm >= 10.9.0
+
+## Commands
+
+### Build
+
+- `npm run build` - Full build process (compile contract, generate full client, and minimal client)
+- `npm run build:contract` - Compile TypeScript contract to TEAL with source maps
+- `npm run build:client` - Generate full TypeScript client from ARC-56 schema
+- `npm run build:minimal-client` - Generate minimal TypeScript client
+
+### Development
+
+- `npm run deploy` - Deploy the contract to the configured network
+- `npm run test` - Run unit and integration tests with coverage
+- `npm run test:watch` - Run tests in watch mode
+- `npm run check-types` - Type check without emitting files
+
+### Code Quality
+
+- `npm run lint` - Run ESLint to check code quality
+- `npm run lint:fix` - Automatically fix linting issues
+- `npm run format` - Format code with Prettier
+- `npm run audit` - Run security audit on dependencies
+
+## Environment
+
+Environment files should be placed in the contract root directory:
+
+- `.env.localnet` - For local network (algokit localnet)
+- `.env.testnet` - For testnet deployment
+- `.env.mainnet` - For mainnet deployment
+- `.env.<custom>` - For custom network configurations
+
+Generate these files using: `turbo gen contract-env-file`
+
+## Package Exports
+
+The package exports the following artifacts:
+
+- `./` - Full TypeScript client (`HelloWorld.client.ts`)
+- `./minimal-client` - Minimal TypeScript client (`HelloWorld.minimal-client.ts`)
+- `./arc56` - ARC-56 schema (`HelloWorld.arc56.json`)
+- `./approval-program` - Approval program TEAL (`HelloWorld.approval.teal`)
+- `./clear-program` - Clear state program TEAL (`HelloWorld.clear.teal`)
