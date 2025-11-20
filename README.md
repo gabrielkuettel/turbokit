@@ -1,135 +1,270 @@
-# Turborepo starter
+# TurboKit
 
-This Turborepo starter is maintained by the Turborepo core team.
+**AlgoKit + Turborepo = TurboKit**
 
-## Using this example
+A monorepo toolkit for building Algorand smart contracts with the power of Turborepo. TurboKit combines the smart contract development capabilities of [AlgoKit](https://developer.algorand.org/docs/get-details/algokit/) with the build system optimizations of [Turborepo](https://turborepo.org/).
 
-Run the following command:
+## Overview
 
-```sh
-npx create-turbo@latest
-```
+TurboKit provides a monorepo structure for Algorand smart contract development. Instead of using AlgoKit's project generation templates, TurboKit re-implements the same functionality within a Turborepo-powered monorepo, giving you:
 
-## What's inside?
+- **Cached Builds**: Turborepo caches build outputs, so unchanged contracts never rebuild
+- **Parallel Builds**: All contracts build simultaneously, not sequentially
+- **Smart Task Orchestration**: Automatic dependency management and task parallelization
+- **Filtering**: Run commands for specific contracts or subsets of your codebase
+- **Remote Caching**: Share build caches across your team and CI/CD pipelines
+
+### Why TurboKit?
+
+Traditional AlgoKit workflows build contracts sequentially, which can be slow in monorepos with multiple contracts. TurboKit leverages Turborepo's task orchestration to:
+
+- Build multiple contracts in parallel
+- Cache build artifacts so unchanged contracts skip rebuilding
+- Provide fine-grained control over which contracts to build, test, or deploy
+- Scale efficiently as your contract portfolio grows
+
+## What's Inside?
 
 This Turborepo includes the following packages/apps:
 
-### Apps and Packages
+### Apps
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@turbokit/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@turbokit/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
+- `apps/docs`: A [Next.js](https://nextjs.org/) documentation app
+- `apps/web`: Another [Next.js](https://nextjs.org/) web application
+
+### Packages
+
+- `@turbokit/ui`: A React component library shared by both `web` and `docs` applications
+- `@turbokit/eslint-config`: Shared ESLint configurations
+- `@turbokit/prettier-config`: Shared Prettier configuration
 - `@turbokit/typescript-config`: `tsconfig.json`s used throughout the monorepo
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+### Contracts
 
-### Utilities
+Contracts are located in the `contracts/` directory. Each contract is a workspace package that can be built, tested, and deployed independently.
 
-This Turborepo has some additional tools already setup for you:
+## Requirements
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+- Node.js >= 18 (>= 22.14.0 for contracts)
+- npm >= 10.9.0
+
+## Getting Started
+
+### Installation
+
+```bash
+# Install dependencies
+npm install
+```
+
+### Generate a New Contract
+
+Generate a new smart contract package:
+
+```bash
+turbo gen contract
+```
+
+This will prompt you for:
+
+- Contract name (e.g., `hello-world`)
+- Description
+
+### Generate Environment Files
+
+Generate environment files for your contracts:
+
+```bash
+turbo gen contract-env-file
+```
+
+This will prompt you to:
+
+- Choose a specific contract or all existing contracts
+- Select which network environment files to generate (localnet, testnet, mainnet, custom)
+
+## Turbo Commands
+
+TurboKit uses Turborepo to run tasks across the monorepo. All commands can be run from the root using `turbo run <task>` or via npm scripts.
 
 ### Build
 
-To build all apps and packages, run the following command:
+Build all apps, packages, and contracts:
 
-```
-cd my-turborepo
+```bash
+# Using turbo directly
+turbo run build
 
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
+# Using npm script
+npm run build
 ```
 
-You can build a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+The build task:
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo build --filter=docs
+- Compiles TypeScript contracts to TEAL
+- Generates TypeScript client code
+- Builds Next.js applications
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
+### Development
 
-### Develop
+Start development servers:
 
-To develop all apps and packages, run the following command:
+```bash
+# Using turbo directly
+turbo run dev
 
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
+# Using npm script
+npm run dev
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters):
+### Testing
 
-```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo dev --filter=web
+Run all tests across the monorepo:
 
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
+```bash
+# Using turbo directly
+turbo run test
 
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-```
-cd my-turborepo
-
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo login
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
+# Using npm script
+npm run test
 ```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+### Code Quality
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+Lint, format, and type-check:
+
+```bash
+# Lint all packages
+turbo run lint
+npm run lint
+
+# Format code (runs prettier)
+npm run format
+
+# Type check all packages
+turbo run check-types
+npm run check-types
+```
+
+### Deployment
+
+Deploy all contracts (builds first):
+
+```bash
+# Using turbo directly
+turbo run deploy
+
+# Using npm script
+npm run deploy
+```
+
+## Using Filters
+
+Turborepo's filtering allows you to run tasks for specific packages or contracts. See the [Turborepo filtering documentation](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters) for complete details.
+
+### Filter by Package Name
+
+Run a task for a specific package:
+
+```bash
+# Build only the hello-world contract
+turbo run build --filter=@turbokit/hello-world
+
+# Or use the shorthand
+turbo run build --filter=hello-world
+```
+
+### Filter by Directory
+
+Run tasks for all packages in a directory:
+
+```bash
+# Build all contracts
+turbo run build --filter="./contracts/*"
+
+# Build all apps
+turbo run build --filter="./apps/*"
+
+# Build all packages
+turbo run build --filter="./packages/*"
+```
+
+For more advanced filtering options, see the [Turborepo filtering documentation](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters).
+
+## Generators
+
+TurboKit includes generators to scaffold new contracts and manage environment files.
+
+### Generate Contract
+
+Create a new Algorand smart contract package:
+
+```bash
+turbo gen contract
+```
+
+This creates:
+
+- Contract source files (`.algo.ts`, `.spec.ts`, `.e2e.spec.ts`)
+- Deployment script (`deploy.ts`)
+- Configuration files (`package.json`, `tsconfig.json`, `vitest.config.ts`, etc.)
+- README with contract documentation
+
+### Generate Environment Files
+
+Generate environment configuration files for contracts:
+
+```bash
+turbo gen contract-env-file
+```
+
+This will:
+
+- Prompt you to select a contract or generate for all contracts
+- Allow you to choose which network files to generate (localnet, testnet, mainnet, custom)
+- Create `.env.*` files in the contract directory
+
+Example environment files:
+
+- `.env.localnet` - For local development with algokit localnet
+- `.env.testnet` - For testnet deployment
+- `.env.mainnet` - For mainnet deployment
+- `.env.<custom>` - For custom network configurations
+
+## Project Structure
 
 ```
-# With [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation) installed (recommended)
-turbo link
-
-# Without [global `turbo`](https://turborepo.com/docs/getting-started/installation#global-installation), use your package manager
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
+turbokit/
+├── apps/                  # Applications
+│   ├── docs/             # Next.js documentation app
+│   └── web/              # Next.js web application
+├── packages/             # Shared packages
+│   ├── eslint-config/    # ESLint configurations
+│   ├── prettier-config/  # Prettier configuration
+│   ├── typescript-config/# TypeScript configurations
+│   └── ui/               # React component library
+├── contracts/            # Smart contracts
+│   └── hello-world/      # Example contract
+│       ├── src/          # Contract source files
+│       ├── artifacts/    # Compiled outputs
+│       └── package.json  # Contract package config
+├── turbo/                # Turborepo configuration
+│   └── generators/       # Code generators
+│       ├── contract/     # Contract generator templates
+│       └── contract-env-file/  # Env file generator templates
+├── turbo.json            # Turborepo task configuration
+└── package.json          # Root package configuration
 ```
 
 ## Useful Links
 
-Learn more about the power of Turborepo:
+Learn more about the technologies powering TurboKit:
 
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+- [Turborepo Documentation](https://turborepo.org/docs)
+- [AlgoKit Documentation](https://developer.algorand.org/docs/get-details/algokit/)
+- [Turborepo Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
+- [Turborepo Caching](https://turborepo.com/docs/crafting-your-repository/caching)
+- [Turborepo Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
+- [Turborepo Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
+- [Turborepo Configuration](https://turborepo.com/docs/reference/configuration)
+- [Turborepo CLI Reference](https://turborepo.com/docs/reference/command-line-reference)
