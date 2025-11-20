@@ -27,7 +27,6 @@ export async function deploy() {
     })
   }
 
-  // Get deployment details and display in a table
   const { appId, appAddress, appName } = appClient
 
   console.table({
