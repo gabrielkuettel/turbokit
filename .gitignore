@@ -38,3 +38,9 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+
+# AlgoKit
+debug_traces/
+**/artifacts/*.map
+**/.algokit/static-analysis/ # Replace with **/.algokit/static-analysis/tealer/ to enable snapshot checks in CI
+**/.algokit/sources
