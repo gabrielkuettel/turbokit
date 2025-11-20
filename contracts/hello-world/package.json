@@ -9,14 +9,15 @@
     "./approval-program": "./artifacts/HelloWorld.approval.teal",
     "./clear-program": "./artifacts/HelloWorld.clear.teal",
     "./minimal-client": "./artifacts/HelloWorld.minimal-client.ts",
-    "./": "./artifacts/HelloWorld.client.ts"
+    "./": "./artifacts/HelloWorld.client.ts",
+    "./deploy": "./src/deploy.ts"
   },
   "scripts": {
     "build": "npm run build:contract && npm run build:client && npm run build:minimal-client",
     "build:contract": "puya-ts ./src --output-source-map --out-dir ../artifacts",
     "build:client": "algokit-client-generator generate -a ./artifacts/HelloWorld.arc56.json -o ./artifacts/HelloWorld.client.ts",
     "build:minimal-client": "algokit-client-generator generate -a ./artifacts/HelloWorld.arc56.json -o ./artifacts/HelloWorld.minimal-client.ts -m minimal",
-    "deploy": "tsx --no-check ./src/deploy.ts",
+    "deploy": "tsx --no-check ./index.ts",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "audit": "better-npm-audit audit",

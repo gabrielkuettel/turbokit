@@ -1,12 +1,12 @@
 import 'dotenv/config'
 import { AlgorandClient } from '@algorandfoundation/algokit-utils'
-import { {{pascalCase contractName}}Factory } from '../artifacts/{{pascalCase contractName}}.client'
+import { HelloWorldFactory } from '../artifacts/HelloWorld.client'
 
 export async function deploy() {
   const algorand = AlgorandClient.fromEnvironment()
   const deployer = await algorand.account.fromEnvironment('DEPLOYER')
 
-  const typedFactory = algorand.client.getTypedAppFactory({{pascalCase contractName}}Factory, {
+  const typedFactory = algorand.client.getTypedAppFactory(HelloWorldFactory, {
     defaultSender: deployer.addr,
   })
 
@@ -35,9 +35,10 @@ export async function deploy() {
     address: appAddress.toString(),
     deployer: deployer.addr.toString(),
   })
-}
 
-deploy().catch((error) => {
-  console.error(error)
-  process.exit(1)
-})
+  const response = await appClient.send.hello({
+    args: { name: 'world' },
+  })
+
+  console.log(`Response: ${response.return}`)
+}

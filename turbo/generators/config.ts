@@ -69,6 +69,11 @@ export default function (plop: PlopTypes.NodePlopAPI) {
       },
       {
         type: "add",
+        path: "contracts/{{kebabCase contractName}}/index.ts",
+        templateFile: "contract/index.ts.hbs",
+      },
+      {
+        type: "add",
         path: "contracts/{{kebabCase contractName}}/package.json",
         templateFile: "contract/package.json.hbs",
       },

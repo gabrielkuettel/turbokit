@@ -35,9 +35,10 @@ export async function deploy() {
     address: appAddress.toString(),
     deployer: deployer.addr.toString(),
   })
-}
 
-deploy().catch((error) => {
-  console.error(error)
-  process.exit(1)
-})
+  const response = await appClient.send.hello({
+    args: { name: 'world' },
+  })
+
+  console.log(`Response: ${response.return}`)
+}
