@@ -10,7 +10,7 @@ describe('HelloWorld contract', () => {
   beforeAll(() => {
     Config.configure({
       debug: true,
-      // traceAll: true,
+      traceAll: true,
     })
     registerDebugEventHandlers()
   })
